@@ -17,9 +17,14 @@ from services.llm import assess_risk, chat_with_document, get_rich_translation
 
 app = FastAPI(title="MediRead API", version="1.0")
 
+# 로컬: localhost / 배포: ALLOWED_ORIGINS 환경변수로 주입
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001")
+_origins = [o.strip() for o in _raw_origins.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Vercel 프리뷰 URL 자동 허용
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
